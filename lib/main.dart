@@ -1,7 +1,9 @@
 import 'package:custom_painter_practice/drawing_painter.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 
 void main() {
+  debugRepaintRainbowEnabled = true;
   runApp(const MyApp());
 }
 
@@ -13,41 +15,43 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'Flutter Demo',
       theme: ThemeData(colorScheme: .fromSeed(seedColor: Colors.deepPurple)),
-      home: const DrawingPage(),
+      home: DrawingPage(),
     );
   }
 }
 
-class DrawingPage extends StatefulWidget {
-  const DrawingPage({super.key});
+class DrawingPage extends StatelessWidget {
+  DrawingPage({super.key});
 
-  @override
-  State<DrawingPage> createState() => _DrawingPageState();
-}
-
-class _DrawingPageState extends State<DrawingPage> {
-  List<Offset> points = <Offset>[];
+  final pointsListenable = ValueNotifier<List<Offset>>([]);
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text('DrawingPage')),
       body: GestureDetector(
-        onPanStart: (details) => points.add(details.localPosition),
+        onPanStart: (details) => pointsListenable.value = [
+          ...pointsListenable.value,
+          details.localPosition,
+        ],
         onPanUpdate: (details) {
-          points.add(details.localPosition);
-          setState(() {});
+          pointsListenable.value = [
+            ...pointsListenable.value,
+            details.localPosition,
+          ];
         },
         onPanEnd: (details) {
-          points.add(Offset.infinite);
+          pointsListenable.value = [...pointsListenable.value, Offset.infinite];
         },
         child: SizedBox(
           width: double.infinity,
           height: double.infinity,
-          child: CustomPaint(
-            painter: DrawingPainter(points),
-            //child: Container()
-          )
+          child: RepaintBoundary(
+            child: CustomPaint(
+              painter: DrawingPainter(pointsListenable),
+              child: const SizedBox.shrink(),
+            ),
+          ),
         ),
       ),
     );
