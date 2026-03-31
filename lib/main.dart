@@ -1,4 +1,5 @@
 import 'package:custom_painter_practice/drawing_painter.dart';
+import 'package:custom_painter_practice/my_painter.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 
@@ -46,12 +47,13 @@ class DrawingPage extends StatelessWidget {
         child: SizedBox(
           width: double.infinity,
           height: double.infinity,
-          child: RepaintBoundary(
+          child: CustomPaint(painter: MyPainter()),
+          /* RepaintBoundary(
             child: CustomPaint(
               painter: DrawingPainter(pointsListenable),
               child: const SizedBox.shrink(),
             ),
-          ),
+          ), */
         ),
       ),
     );
